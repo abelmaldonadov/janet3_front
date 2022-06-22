@@ -1,23 +1,38 @@
 import React from "react"
-import "./App.css"
+import css from "./App.module.css"
+import { AppContextComponent } from "./contexts/AppContext"
+import { Route, Routes } from "react-router-dom"
+import { HomeScreen } from "./screens/home/HomeScreen"
+import { TransactionsScreen } from "./screens/transactions/TransactionsScreen"
+import { ProductsScreen } from "./screens/products/ProductsScreen"
+import { EntitiesScreen } from "./screens/entities/EntitiesScreen"
+import { _Error404 } from "./screens/_Error404"
+import { Header } from "./components/header/Header"
+import { Navbar } from "./components/navbar/Navbar"
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AppContextComponent>
+      <div className={css.app}>
+        <div className={css.navbar}>
+          <Navbar />
+        </div>
+        <div className={css.content}>
+          <div className={css.header}>
+            <Header />
+          </div>
+          <div className={css.body}>
+            <Routes>
+              <Route path="/entities" element={<EntitiesScreen />} />
+              <Route path="/products" element={<ProductsScreen />} />
+              <Route path="/transactions" element={<TransactionsScreen />} />
+              <Route path="/" element={<HomeScreen />} />
+              <Route path="*" element={<_Error404 />} />
+            </Routes>
+          </div>
+        </div>
+      </div>
+    </AppContextComponent>
   )
 }
 

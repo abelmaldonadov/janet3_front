@@ -1,0 +1,73 @@
+.row {}
+.selected {
+    background: #fff7d9;
+}
+.col {
+    padding: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+/* Column Styles */
+.icon {
+    display: flex;
+    justify-content: space-evenly;
+    cursor: pointer;
+}
+.icon > *:hover {
+    opacity: 0.5;
+}
+.number {
+    font-weight: 600;
+    text-align: right;
+}
+.money {
+    font-weight: 600;
+    text-align: right;
+}
+.date {
+    font-weight: 600;
+}
+.role {
+    font-weight: 600;
+}
+.role_1 {
+    color: #e78346;
+}
+.role_2 {
+    color: #42add3;
+}
+.role_3 {
+    color: #f6d466;
+}
+.level {
+    font-weight: 600;
+}
+.level_1 {}
+.level_2 {}
+.level_3 {}
+.transaction {
+    font-weight: 600;
+}
+.transaction_1 {
+    color: #42add3;
+}
+.transaction_2 {
+    color: #e78346;
+}
+.tracking {
+    font-weight: 600;
+}
+.tracking_1 {
+    color: #d937d9;
+}
+.tracking_2 {
+    color: #b1d74e;
+}
+.state {
+    font-weight: 600;
+}
+.state_1 {
+    color: #37d337;
+}
+.state_2 {
+    color: red;
+}

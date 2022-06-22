@@ -1,0 +1,23 @@
+.option {
+    text-decoration: none;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 5px;
+}
+.option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+.option:active {
+    background: rgba(255, 255, 255, 0.2);
+}
+.link {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.75);
+    margin-left: 10px;
+}
+.isSelected {
+    background: rgba(255, 255, 255, 0.2);
+}

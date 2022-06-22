@@ -1,0 +1,32 @@
+.block {
+    background: white;
+    height: 100%;
+    border-radius: 7px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+}
+.fixed {
+    position: sticky;
+    top: 100px;
+}
+.header {
+    /*background: rgba(0, 0, 0, 0.03);*/
+    height: 40px;
+    padding: 0 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+.left {}
+.right {}
+.title {
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+.body {
+    height: calc(100% - 50px);
+    border-radius: 5px;
+    overflow-y: auto;
+}

@@ -1,0 +1,25 @@
+.container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+}
+.left {
+    height: 100%;
+    padding: 20px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+.right {
+    height: 100%;
+    padding: 20px;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+.image {
+    width: 100%;
+}

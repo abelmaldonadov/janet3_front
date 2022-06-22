@@ -1,0 +1,22 @@
+.app {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+.navbar {
+    width: 250px;
+}
+.content {
+    width: calc(100% - 250px);
+    position: relative;
+}
+.header {
+    height: 100px;
+}
+.body {
+    position: absolute;
+    top: 100px;
+    width: 100%;
+    height: calc(100% - 100px);
+}
