@@ -48,7 +48,7 @@ export const EntitiesScreen = () => {
   const getAllData = async () => {
     try {
       const entities = await axios.get(`${API_ROUTE}/api/entities`)
-      setEntities(entities.data.data)
+      setEntities(entities.data.data.reverse())
       setMeta(entities.data.meta)
     } catch (error) {
       alert(error)
@@ -136,14 +136,14 @@ export const EntitiesScreen = () => {
                 value={entitySel?.role}
                 type="select"
                 options={meta.roles}
-                onChange={(val: string) => setEntitySel({ ...entitySel, role: val })}
+                onChange={(val: number) => setEntitySel({ ...entitySel, role: val })}
               />
               <Input
                 label="Estado"
                 value={entitySel?.state}
                 type="select"
                 options={meta.states}
-                onChange={(val: string) => setEntitySel({ ...entitySel, state: val })}
+                onChange={(val: number) => setEntitySel({ ...entitySel, state: val })}
               />
             </Row>
             <Row template={[1, 1]}>
@@ -152,10 +152,10 @@ export const EntitiesScreen = () => {
             </Row>
           </Form>
         </Block>
-        <Block title="Proveedores" className={css.two}>
+        <Block title="Clientes" className={css.two}>
           <Table headers={["Nombre", "Ruc", "Correo", "Movil", "Dirección", "Estado", ""]}>
             {entities
-              .filter((item) => item.role === 2)
+              .filter((item) => item.role === 1)
               .map((item: Entity) => (
                 <TableRow key={item.id} isSelected={entityId === item.id}>
                   {[
@@ -183,10 +183,10 @@ export const EntitiesScreen = () => {
               ))}
           </Table>
         </Block>
-        <Block title="Clientes" className={css.three}>
+        <Block title="Proveedores" className={css.three}>
           <Table headers={["Nombre", "Ruc", "Correo", "Movil", "Dirección", "Estado", ""]}>
             {entities
-              .filter((item) => item.role === 1)
+              .filter((item) => item.role === 2)
               .map((item: Entity) => (
                 <TableRow key={item.id} isSelected={entityId === item.id}>
                   {[

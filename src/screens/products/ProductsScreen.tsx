@@ -17,6 +17,16 @@ import { BiEdit, BiTrash } from "react-icons/bi"
 import { Row } from "../../components/grid/Row"
 
 export const ProductsScreen = () => {
+  const productModel: Product = {
+    name: "",
+    serial: "",
+    brand: "",
+    description: "",
+    price: 0,
+    coin: 1,
+    vendor: 1,
+    state: 1,
+  }
   const { REACT_APP_API_ROUTE: API_ROUTE } = process.env
   const [isLoading, setLoading] = useState(true)
   const [products, setProducts] = useState<Product[]>([])
@@ -24,17 +34,6 @@ export const ProductsScreen = () => {
   const [meta, setMeta] = useState<any>()
   const [productSel, setProductSel] = useState<any>()
   const [productId, setProductId] = useState<number>()
-  const productModel = {
-    name: "",
-    serial: "",
-    brand: "",
-    description: "",
-    price: 0,
-    stock: 0,
-    coin: 1,
-    vendor: 1,
-    state: 1,
-  }
 
   useEffect(() => {
     return () => {
@@ -53,8 +52,8 @@ export const ProductsScreen = () => {
     try {
       const products = await axios.get(`${API_ROUTE}/api/products`)
       const entities = await axios.get(`${API_ROUTE}/api/entities`)
-      setProducts(products.data.data)
-      setEntities(entities.data.data)
+      setProducts(products.data.data.reverse())
+      setEntities(entities.data.data.reverse())
       setMeta(products.data.meta)
     } catch (error) {
       alert(error)
@@ -150,13 +149,7 @@ export const ProductsScreen = () => {
               />
             </Row>
             <Row template={[1, 1]}>
-              <Input
-                label="Stock"
-                type="number"
-                min={0}
-                value={productSel?.stock}
-                onChange={(val: number) => setProductSel({ ...productSel, stock: val })}
-              />
+              <></>
               <Input
                 label="Estado"
                 type="select"
@@ -179,9 +172,9 @@ export const ProductsScreen = () => {
           </Form>
         </Block>
         <Block title="Productos Disponibles" className={css.two}>
-          <Table headers={["Nombre", "Serial", "Marca", "Precio", "Stock", "Proveedor", "Estado", ""]}>
+          <Table headers={["Nombre", "Serial", "Marca", "Precio", "Proveedor", "Estado", ""]}>
             {products
-              .filter((item) => item.stock > 0)
+              .filter((item) => item.state === 1)
               .map((item: Product) => (
                 <TableRow key={item.id} isSelected={productId === item.id}>
                   {[
@@ -194,7 +187,6 @@ export const ProductsScreen = () => {
                         meta.coins.find((co: Coin) => co.id === item.coin).symbol
                       } ${item.price.toFixed(2)}`,
                     },
-                    { style: "number", value: item.stock },
                     { style: "", value: entities.find((en: Entity) => en.id === item.vendor).name },
                     {
                       style: "state",
@@ -216,9 +208,9 @@ export const ProductsScreen = () => {
           </Table>
         </Block>
         <Block title="Productos Agotados" className={css.three}>
-          <Table headers={["Nombre", "Serial", "Marca", "Precio", "Stock", "Proveedor", "Estado", ""]}>
+          <Table headers={["Nombre", "Serial", "Marca", "Precio", "Proveedor", "Estado", ""]}>
             {products
-              .filter((item) => item.stock === 0)
+              .filter((item) => item.state === 2)
               .map((item: Product) => (
                 <TableRow key={item.id} isSelected={productId === item.id}>
                   {[
@@ -231,7 +223,6 @@ export const ProductsScreen = () => {
                         meta.coins.find((co: Coin) => co.id === item.coin).symbol
                       } ${item.price.toFixed(2)}`,
                     },
-                    { style: "number", value: item.stock },
                     { style: "", value: entities.find((en: Entity) => en.id === item.vendor).name },
                     {
                       style: "state",

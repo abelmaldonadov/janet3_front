@@ -1,0 +1,56 @@
+.one {
+    grid-column: 1 / 9;
+    grid-row: 1 / 7;
+}
+.two {
+    grid-column: 9 / 13;
+    grid-row: 1 / 7;
+}
+.three {
+    grid-column: 9 / 13;
+    grid-row: 7 / 13;
+}
+
+.container {
+    display: flex;
+    justify-content: left;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    min-height: 100%;
+    background: #f2f2f2;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.detail {
+    height: 65%;
+    overflow-y: auto;
+    background: #f2f2f2;
+    padding: 0 10px 10px 10px;
+    margin-bottom: 7px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 7px;
+}
+.detailHeader {
+    padding: 10px 5px 5px 5px;
+    font-weight: 500;
+    position: sticky;
+    top: 0;
+    background: #f1f1f1;
+}
+.product {
+    background: white;
+    border-radius: 5px;
+    width: 100%;
+    margin-bottom: 3px;
+    padding: 5px;
+}
+.number {
+    text-align: right;
+}
+.trashIcon {
+    cursor: pointer;
+}
+.trashIcon:hover {
+    opacity: 0.5;
+}

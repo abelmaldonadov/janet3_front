@@ -2,7 +2,7 @@ import React from "react"
 import css from "./App.module.css"
 import { AppContextComponent } from "./contexts/AppContext"
 import { Route, Routes } from "react-router-dom"
-import { HomeScreen } from "./screens/home/HomeScreen"
+import { PointOfSaleScreen } from "./screens/point_of_sale/PointOfSaleScreen"
 import { TransactionsScreen } from "./screens/transactions/TransactionsScreen"
 import { ProductsScreen } from "./screens/products/ProductsScreen"
 import { EntitiesScreen } from "./screens/entities/EntitiesScreen"
@@ -26,7 +26,7 @@ function App() {
               <Route path="/entities" element={<EntitiesScreen />} />
               <Route path="/products" element={<ProductsScreen />} />
               <Route path="/transactions" element={<TransactionsScreen />} />
-              <Route path="/" element={<HomeScreen />} />
+              <Route path="/" element={<PointOfSaleScreen />} />
               <Route path="*" element={<_Error404 />} />
             </Routes>
           </div>

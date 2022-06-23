@@ -8,7 +8,7 @@ import axios from "axios"
 import { Loader } from "../../components/loader/Loader"
 import { Transaction, TransactionDetail } from "../../models/Transaction"
 import { TableRow } from "../../components/table/TableRow"
-import { Coin, Role, State, Tracking } from "../../models/Meta"
+import { Coin, Role, State, Tracking, TransactionType } from "../../models/Meta"
 import { Table } from "../../components/table/Table"
 import { BiEdit, BiShoppingBag, BiTrash } from "react-icons/bi"
 import { Input } from "../../components/form/Input"
@@ -61,9 +61,9 @@ export const TransactionsScreen = () => {
       const transactions = await axios.get(`${API_ROUTE}/api/transactions`)
       const entities = await axios.get(`${API_ROUTE}/api/entities`)
       const products = await axios.get(`${API_ROUTE}/api/products`)
-      setTransactions(transactions.data.data)
-      setEntities(entities.data.data)
-      setProducts(products.data.data)
+      setTransactions(transactions.data.data.reverse())
+      setEntities(entities.data.data.reverse())
+      setProducts(products.data.data.reverse())
       setMeta(transactions.data.meta)
     } catch (error) {
       alert(error)
@@ -92,17 +92,6 @@ export const TransactionsScreen = () => {
     }
   }
 
-  const createData = async () => {
-    try {
-      await axios.post(`${API_ROUTE}/api/transactions`, transactionSel)
-      await getAllData()
-      setTransactionSel(JSON.parse(JSON.stringify(transactionModel)))
-      setTransactionDetailSel([])
-    } catch (error) {
-      alert(error)
-    }
-  }
-
   const deleteData = async (id: any) => {
     if (!window.confirm("¿Está seguro de eliminar el item?")) return
     try {
@@ -120,22 +109,29 @@ export const TransactionsScreen = () => {
       <Grid>
         <Block title="Detalles de Transacción" isFixed className={css.one}>
           <Form>
-            <Row template={[2, 2, 2]}>
+            <Row template={[1, 1, 2, 2]}>
               <Input
-                label="Fecha"
-                type="text"
+                label="Identificador"
+                type="number"
                 readonly
-                value={transactionSel?.date}
-                onChange={(val: string) => setTransactionSel({ ...transactionSel, date: val })}
+                value={transactionSel?.id}
+                onChange={(val: number) => setTransactionSel({ ...transactionSel, transactionType: val })}
               />
-              <></>
               <Input
                 label="Transacción"
                 type="select"
                 readonly
                 options={meta.transactionTypes}
                 value={transactionSel?.transactionType}
-                onChange={(val: string) => setTransactionSel({ ...transactionSel, transactionType: val })}
+                onChange={(val: number) => setTransactionSel({ ...transactionSel, transactionType: val })}
+              />
+              <></>
+              <Input
+                label="Fecha"
+                type="text"
+                readonly
+                value={transactionSel?.date && new Date(transactionSel.date).toLocaleString()}
+                onChange={(val: string) => setTransactionSel({ ...transactionSel, date: val })}
               />
             </Row>
             <Row template={[2, 2, 1, 1]}>
@@ -144,7 +140,7 @@ export const TransactionsScreen = () => {
                 type="select"
                 options={entities.filter((item) => item.role === transactionSel?.transactionType)}
                 value={transactionSel?.entity}
-                onChange={(val: string) => setTransactionSel({ ...transactionSel, entity: val })}
+                onChange={(val: number) => setTransactionSel({ ...transactionSel, entity: val })}
               />
               <></>
               <Input
@@ -152,14 +148,14 @@ export const TransactionsScreen = () => {
                 type="select"
                 options={meta.tracking}
                 value={transactionSel?.tracking}
-                onChange={(val: string) => setTransactionSel({ ...transactionSel, tracking: val })}
+                onChange={(val: number) => setTransactionSel({ ...transactionSel, tracking: val })}
               />
               <Input
                 label="Estado"
                 type="select"
                 options={meta.states}
                 value={transactionSel?.state}
-                onChange={(val: string) => setTransactionSel({ ...transactionSel, state: val })}
+                onChange={(val: number) => setTransactionSel({ ...transactionSel, state: val })}
               />
             </Row>
             <div className={css.canva}>
@@ -208,25 +204,28 @@ export const TransactionsScreen = () => {
             </Row>
           </Form>
         </Block>
-        <Block title="Ventas" className={css.two}>
-          <Table headers={["Fecha", "Entidad", "Total", "Tracking", "Estado", ""]}>
+        <Block title="Transacciones Aprobadas" className={css.two}>
+          <Table headers={["Id", "Fecha", "Transacción", "Entidad", "Total", "Estado", ""]}>
             {transactions
-              .filter((item) => item.transactionType === 1)
+              .filter((item) => item.tracking === 2)
               .map((item: Transaction) => (
                 <TableRow key={item.id} isSelected={transactionId === item.id}>
                   {[
+                    { style: "number", value: item.id },
                     { style: "date", value: new Date(item.date).toLocaleString() },
+                    {
+                      style: "transaction",
+                      value: meta.transactionTypes.find(
+                        (tr: TransactionType) => tr.id === item.transactionType
+                      ).name,
+                      fkId: item.transactionType,
+                    },
                     { style: "", value: entities.find((en: Entity) => en.id === item.entity).name },
                     {
                       style: "money",
                       value: `${
                         meta.coins.find((co: Coin) => co.id === item.coin).symbol
                       } ${item.total.toFixed(2)}`,
-                    },
-                    {
-                      style: "tracking",
-                      value: meta.tracking.find((tr: Tracking) => tr.id === item.tracking).name,
-                      fkId: item.tracking,
                     },
                     {
                       style: "state",
@@ -247,25 +246,28 @@ export const TransactionsScreen = () => {
               ))}
           </Table>
         </Block>
-        <Block title="Compras" className={css.three}>
-          <Table headers={["Fecha", "Entidad", "Total", "Tracking", "Estado", ""]}>
+        <Block title="Transacciones Pendientes" className={css.three}>
+          <Table headers={["Id", "Fecha", "Transacción", "Entidad", "Total", "Estado", ""]}>
             {transactions
-              .filter((item) => item.transactionType === 2)
+              .filter((item) => item.tracking === 1)
               .map((item: Transaction) => (
                 <TableRow key={item.id} isSelected={transactionId === item.id}>
                   {[
+                    { style: "number", value: item.id },
                     { style: "date", value: new Date(item.date).toLocaleString() },
+                    {
+                      style: "transaction",
+                      value: meta.transactionTypes.find(
+                        (tr: TransactionType) => tr.id === item.transactionType
+                      ).name,
+                      fkId: item.transactionType,
+                    },
                     { style: "", value: entities.find((en: Entity) => en.id === item.entity).name },
                     {
                       style: "money",
                       value: `${
                         meta.coins.find((co: Coin) => co.id === item.coin).symbol
                       } ${item.total.toFixed(2)}`,
-                    },
-                    {
-                      style: "tracking",
-                      value: meta.tracking.find((tr: Tracking) => tr.id === item.tracking).name,
-                      fkId: item.tracking,
                     },
                     {
                       style: "state",

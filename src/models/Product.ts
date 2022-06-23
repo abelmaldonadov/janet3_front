@@ -5,7 +5,6 @@ export interface Product {
   brand: string
   description: string
   price: number
-  stock: number
 
   coin: number
   vendor: number

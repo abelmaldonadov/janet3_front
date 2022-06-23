@@ -4,13 +4,13 @@ export interface TransactionDetail {
   quantity: number
   subtotal: number
   coin: number
-  transaction: number
+  transaction?: number
   product: number
   state: number
 }
 export interface Transaction {
   id?: number
-  date: Date
+  date: string
   total: number
   coin: number
   transactionType: number
