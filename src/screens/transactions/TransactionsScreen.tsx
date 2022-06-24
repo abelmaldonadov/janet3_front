@@ -2,7 +2,7 @@ import { Screen } from "../../components/screen/Screen"
 import css from "./TransactionsScreen.module.css"
 import { Block } from "../../components/grid/Block"
 import { Grid } from "../../components/grid/Grid"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Entity } from "../../models/Entity"
 import axios from "axios"
 import { Loader } from "../../components/loader/Loader"
@@ -15,18 +15,11 @@ import { Input } from "../../components/form/Input"
 import { Form } from "../../components/form/Form"
 import { Button } from "../../components/form/Button"
 import { Row } from "../../components/grid/Row"
+import { AppContext } from "../../contexts/AppContext"
 
 export const TransactionsScreen = () => {
-  const { REACT_APP_API_ROUTE: API_ROUTE } = process.env
-  const [isLoading, setLoading] = useState(true)
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [entities, setEntities] = useState<any[]>([])
-  const [products, setProducts] = useState<any[]>([])
-  const [meta, setMeta] = useState<any>()
-  const [transactionSel, setTransactionSel] = useState<any>()
-  const [transactionDetailSel, setTransactionDetailSel] = useState<any>()
-  const [transactionId, setTransactionId] = useState<number>()
   const transactionModel = {
+    id: "",
     date: "",
     total: 0,
     coin: 1,
@@ -35,6 +28,16 @@ export const TransactionsScreen = () => {
     entity: 1,
     state: 1,
   }
+  const { REACT_APP_API_ROUTE: API_ROUTE } = process.env
+  const { headers } = useContext(AppContext)
+  const [isLoading, setLoading] = useState(true)
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [entities, setEntities] = useState<any[]>([])
+  const [products, setProducts] = useState<any[]>([])
+  const [meta, setMeta] = useState<any>()
+  const [transactionSel, setTransactionSel] = useState<any>(JSON.parse(JSON.stringify(transactionModel)))
+  const [transactionDetailSel, setTransactionDetailSel] = useState<any>()
+  const [transactionId, setTransactionId] = useState<number>()
 
   useEffect(() => {
     return () => {
@@ -50,17 +53,11 @@ export const TransactionsScreen = () => {
     }
   }, [transactionId])
 
-  useEffect(() => {
-    return () => {
-      getData()
-    }
-  }, [])
-
   const getAllData = async () => {
     try {
-      const transactions = await axios.get(`${API_ROUTE}/api/transactions`)
-      const entities = await axios.get(`${API_ROUTE}/api/entities`)
-      const products = await axios.get(`${API_ROUTE}/api/products`)
+      const transactions = await axios.get(`${API_ROUTE}/api/transactions`, headers)
+      const entities = await axios.get(`${API_ROUTE}/api/entities`, headers)
+      const products = await axios.get(`${API_ROUTE}/api/products`, headers)
       setTransactions(transactions.data.data.reverse())
       setEntities(entities.data.data.reverse())
       setProducts(products.data.data.reverse())
@@ -74,7 +71,7 @@ export const TransactionsScreen = () => {
 
   const getData = async () => {
     try {
-      const transactions = await axios.get(`${API_ROUTE}/api/transactions/${transactionId}`)
+      const transactions = await axios.get(`${API_ROUTE}/api/transactions/${transactionId}`, headers)
       setTransactionSel(transactions.data.data.head[0])
       setTransactionDetailSel(transactions.data.data.body)
     } catch (error) {
@@ -84,7 +81,7 @@ export const TransactionsScreen = () => {
 
   const updateData = async () => {
     try {
-      await axios.put(`${API_ROUTE}/api/transactions/${transactionId}`, transactionSel)
+      await axios.put(`${API_ROUTE}/api/transactions/${transactionId}`, transactionSel, headers)
       await getAllData()
       setTransactionId(undefined)
     } catch (error) {
@@ -95,7 +92,7 @@ export const TransactionsScreen = () => {
   const deleteData = async (id: any) => {
     if (!window.confirm("¿Está seguro de eliminar el item?")) return
     try {
-      await axios.delete(`${API_ROUTE}/api/transactions/${id}`)
+      await axios.delete(`${API_ROUTE}/api/transactions/${id}`, headers)
       await getAllData()
     } catch (error) {
       alert(error)

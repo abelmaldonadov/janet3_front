@@ -29,7 +29,7 @@ export const TableRow = ({ isSelected, children }: Props): JSX.Element => {
   )
 }
 
-const NormalCell = ({ children }: any) => <div>{children}</div>
+const NormalCell = ({ children }: any) => <div className={css.normal}>{children}</div>
 const IconCell = ({ children }: any) => <div className={css.icon}>{children}</div>
 const NumberCell = ({ children }: any) => <div className={css.number}>{children}</div>
 const MoneyCell = ({ children }: any) => <div className={css.money}>{children}</div>

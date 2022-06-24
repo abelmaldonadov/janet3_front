@@ -30,7 +30,7 @@ export const Navbar = () => {
   const routes = [
     {
       icon: <BiCoffeeTogo size="1.5rem" color="rgba(255, 255, 255, 0.75)" />,
-      name: "Inicio",
+      name: "Point of Sale",
       route: "/",
     },
     {

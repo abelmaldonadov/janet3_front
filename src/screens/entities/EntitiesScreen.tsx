@@ -2,7 +2,7 @@ import { Screen } from "../../components/screen/Screen"
 import css from "./EntitiesScreen.module.css"
 import { Block } from "../../components/grid/Block"
 import { Grid } from "../../components/grid/Grid"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Entity } from "../../models/Entity"
 import axios from "axios"
 import { Loader } from "../../components/loader/Loader"
@@ -14,9 +14,11 @@ import { BiEdit, BiTrash } from "react-icons/bi"
 import { Input } from "../../components/form/Input"
 import { Button } from "../../components/form/Button"
 import { Row } from "../../components/grid/Row"
+import { AppContext } from "../../contexts/AppContext"
 
 export const EntitiesScreen = () => {
   const { REACT_APP_API_ROUTE: API_ROUTE } = process.env
+  const { headers } = useContext(AppContext)
   const [isLoading, setLoading] = useState(true)
   const [entities, setEntities] = useState<Entity[]>([])
   const [meta, setMeta] = useState<any>()
@@ -47,7 +49,7 @@ export const EntitiesScreen = () => {
 
   const getAllData = async () => {
     try {
-      const entities = await axios.get(`${API_ROUTE}/api/entities`)
+      const entities = await axios.get(`${API_ROUTE}/api/entities`, headers)
       setEntities(entities.data.data.reverse())
       setMeta(entities.data.meta)
     } catch (error) {
@@ -59,7 +61,7 @@ export const EntitiesScreen = () => {
 
   const getData = async () => {
     try {
-      const entities = await axios.get(`${API_ROUTE}/api/entities/${entityId}`)
+      const entities = await axios.get(`${API_ROUTE}/api/entities/${entityId}`, headers)
       setEntitySel(entities.data.data[0])
     } catch (error) {
       alert(error)
@@ -68,7 +70,7 @@ export const EntitiesScreen = () => {
 
   const updateData = async () => {
     try {
-      await axios.put(`${API_ROUTE}/api/entities/${entityId}`, entitySel)
+      await axios.put(`${API_ROUTE}/api/entities/${entityId}`, entitySel, headers)
       await getAllData()
       setEntityId(undefined)
     } catch (error) {
@@ -78,7 +80,7 @@ export const EntitiesScreen = () => {
 
   const createData = async () => {
     try {
-      await axios.post(`${API_ROUTE}/api/entities`, entitySel)
+      await axios.post(`${API_ROUTE}/api/entities`, entitySel, headers)
       await getAllData()
       setEntitySel(JSON.parse(JSON.stringify(entityModel)))
     } catch (error) {
@@ -89,7 +91,7 @@ export const EntitiesScreen = () => {
   const deleteData = async (id: any) => {
     if (!window.confirm("¿Está seguro de eliminar el item?")) return
     try {
-      await axios.delete(`${API_ROUTE}/api/entities/${id}`)
+      await axios.delete(`${API_ROUTE}/api/entities/${id}`, headers)
       await getAllData()
     } catch (error) {
       alert(error)
@@ -153,14 +155,14 @@ export const EntitiesScreen = () => {
           </Form>
         </Block>
         <Block title="Clientes" className={css.two}>
-          <Table headers={["Nombre", "Ruc", "Correo", "Movil", "Dirección", "Estado", ""]}>
+          <Table headers={["Ruc", "Nombre", "Correo", "Movil", "Dirección", "Estado", ""]}>
             {entities
               .filter((item) => item.role === 1)
               .map((item: Entity) => (
                 <TableRow key={item.id} isSelected={entityId === item.id}>
                   {[
-                    { style: "", value: item.name },
                     { style: "number", value: item.ruc },
+                    { style: "", value: item.name },
                     { style: "", value: item.email },
                     { style: "", value: item.phone },
                     { style: "", value: item.address },
@@ -184,14 +186,14 @@ export const EntitiesScreen = () => {
           </Table>
         </Block>
         <Block title="Proveedores" className={css.three}>
-          <Table headers={["Nombre", "Ruc", "Correo", "Movil", "Dirección", "Estado", ""]}>
+          <Table headers={["Ruc", "Nombre", "Correo", "Movil", "Dirección", "Estado", ""]}>
             {entities
               .filter((item) => item.role === 2)
               .map((item: Entity) => (
                 <TableRow key={item.id} isSelected={entityId === item.id}>
                   {[
-                    { style: "", value: item.name },
                     { style: "number", value: item.ruc },
+                    { style: "", value: item.name },
                     { style: "", value: item.email },
                     { style: "", value: item.phone },
                     { style: "", value: item.address },
@@ -215,14 +217,14 @@ export const EntitiesScreen = () => {
           </Table>
         </Block>
         <Block title="Usuarios" className={css.four}>
-          <Table headers={["Nombre", "Ruc", "Correo", "Movil", "Dirección", "Estado", ""]}>
+          <Table headers={["Ruc", "Nombre", "Correo", "Movil", "Dirección", "Estado", ""]}>
             {entities
               .filter((item) => item.role === 3)
               .map((item: Entity) => (
                 <TableRow key={item.id} isSelected={entityId === item.id}>
                   {[
-                    { style: "", value: item.name },
                     { style: "number", value: item.ruc },
+                    { style: "", value: item.name },
                     { style: "", value: item.email },
                     { style: "", value: item.phone },
                     { style: "", value: item.address },

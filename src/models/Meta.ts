@@ -30,12 +30,6 @@ export interface TransactionType {
   name: string
 }
 // Conf
-interface Model {
-  id?: number
-  name?: string
-  table?: string
-  level?: number
-}
 interface Route {
   id?: number
   name?: string
@@ -62,7 +56,6 @@ export interface Meta {
   tracking: Array<Tracking>
   transactionTypes: Array<TransactionType>
   // Conf
-  models: Array<Model>
   routes: Array<Route>
   users: Array<User>
 }

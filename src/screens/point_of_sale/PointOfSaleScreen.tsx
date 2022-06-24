@@ -3,7 +3,7 @@ import css from "./PointOfSaleScreen.module.css"
 import { Block } from "../../components/grid/Block"
 import { Grid } from "../../components/grid/Grid"
 import { Loader } from "../../components/loader/Loader"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Product } from "../../models/Product"
 import axios from "axios"
 import { ProductCard } from "../../components/product_card/ProductCard"
@@ -14,6 +14,8 @@ import { Transaction, TransactionDetail } from "../../models/Transaction"
 import { BiTrash } from "react-icons/bi"
 import { Form } from "../../components/form/Form"
 import { Entity } from "../../models/Entity"
+import { sortObjects } from "../../utils/sortObjects"
+import { AppContext } from "../../contexts/AppContext"
 
 export const PointOfSaleScreen = () => {
   const transactionModel: Transaction = {
@@ -35,6 +37,7 @@ export const PointOfSaleScreen = () => {
     state: 1,
   }
   const { REACT_APP_API_ROUTE: API_ROUTE } = process.env
+  const { headers } = useContext(AppContext)
   const [isLoading, setLoading] = useState(true)
   const [products, setProducts] = useState<any[]>([])
   const [entities, setEntities] = useState<any[]>([])
@@ -61,9 +64,9 @@ export const PointOfSaleScreen = () => {
 
   const getAllData = async () => {
     try {
-      const products = await axios.get(`${API_ROUTE}/api/products`)
-      const entities = await axios.get(`${API_ROUTE}/api/entities`)
-      setProducts(products.data.data.reverse())
+      const products = await axios.get(`${API_ROUTE}/api/products`, headers)
+      const entities = await axios.get(`${API_ROUTE}/api/entities`, headers)
+      setProducts(sortObjects(products.data.data, "name", "<"))
       setEntities(entities.data.data.reverse())
       setMeta(products.data.meta)
     } catch (error) {
@@ -100,7 +103,11 @@ export const PointOfSaleScreen = () => {
 
   const sell = async () => {
     try {
-      await axios.post(`${API_ROUTE}/api/transactions`, { head: transaction, body: transactionDetail })
+      await axios.post(
+        `${API_ROUTE}/api/transactions`,
+        { head: transaction, body: transactionDetail },
+        headers
+      )
       await getAllData()
       setTransaction(JSON.parse(JSON.stringify(transactionModel)))
       setTransactionDetail([])
@@ -116,7 +123,7 @@ export const PointOfSaleScreen = () => {
 
   const createNewEntity = async () => {
     try {
-      await axios.post(`${API_ROUTE}/api/entities`, newEntity)
+      await axios.post(`${API_ROUTE}/api/entities`, newEntity, headers)
       await getAllData()
       setNewEntity(JSON.parse(JSON.stringify(entityModel)))
     } catch (error) {

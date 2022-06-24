@@ -7,6 +7,5 @@ export interface Product {
   price: number
 
   coin: number
-  vendor: number
   state: number
 }

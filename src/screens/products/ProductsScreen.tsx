@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import axios from "axios"
 import { Product } from "../../models/Product"
 import { Coin, State } from "../../models/Meta"
@@ -15,6 +15,7 @@ import { Input } from "../../components/form/Input"
 import { Button } from "../../components/form/Button"
 import { BiEdit, BiTrash } from "react-icons/bi"
 import { Row } from "../../components/grid/Row"
+import { AppContext } from "../../contexts/AppContext"
 
 export const ProductsScreen = () => {
   const productModel: Product = {
@@ -24,13 +25,12 @@ export const ProductsScreen = () => {
     description: "",
     price: 0,
     coin: 1,
-    vendor: 1,
     state: 1,
   }
   const { REACT_APP_API_ROUTE: API_ROUTE } = process.env
+  const { headers } = useContext(AppContext)
   const [isLoading, setLoading] = useState(true)
   const [products, setProducts] = useState<Product[]>([])
-  const [entities, setEntities] = useState<any[]>([])
   const [meta, setMeta] = useState<any>()
   const [productSel, setProductSel] = useState<any>()
   const [productId, setProductId] = useState<number>()
@@ -50,10 +50,8 @@ export const ProductsScreen = () => {
 
   const getAllData = async () => {
     try {
-      const products = await axios.get(`${API_ROUTE}/api/products`)
-      const entities = await axios.get(`${API_ROUTE}/api/entities`)
+      const products = await axios.get(`${API_ROUTE}/api/products`, headers)
       setProducts(products.data.data.reverse())
-      setEntities(entities.data.data.reverse())
       setMeta(products.data.meta)
     } catch (error) {
       alert(error)
@@ -64,7 +62,7 @@ export const ProductsScreen = () => {
 
   const getData = async () => {
     try {
-      const products = await axios.get(`${API_ROUTE}/api/products/${productId}`)
+      const products = await axios.get(`${API_ROUTE}/api/products/${productId}`, headers)
       setProductSel(products.data.data[0])
     } catch (error) {
       alert(error)
@@ -73,7 +71,7 @@ export const ProductsScreen = () => {
 
   const updateData = async () => {
     try {
-      await axios.put(`${API_ROUTE}/api/products/${productId}`, productSel)
+      await axios.put(`${API_ROUTE}/api/products/${productId}`, productSel, headers)
       await getAllData()
       setProductId(undefined)
     } catch (error) {
@@ -83,7 +81,7 @@ export const ProductsScreen = () => {
 
   const createData = async () => {
     try {
-      await axios.post(`${API_ROUTE}/api/products`, productSel)
+      await axios.post(`${API_ROUTE}/api/products`, productSel, headers)
       await getAllData()
       setProductSel(JSON.parse(JSON.stringify(productModel)))
     } catch (error) {
@@ -94,7 +92,7 @@ export const ProductsScreen = () => {
   const deleteData = async (id: any) => {
     if (!window.confirm("¿Está seguro de eliminar el item?")) return
     try {
-      await axios.delete(`${API_ROUTE}/api/products/${id}`)
+      await axios.delete(`${API_ROUTE}/api/products/${id}`, headers)
       await getAllData()
     } catch (error) {
       alert(error)
@@ -158,13 +156,6 @@ export const ProductsScreen = () => {
                 onChange={(val: number) => setProductSel({ ...productSel, state: val })}
               />
             </Row>
-            <Input
-              label="Proveedor"
-              type="select"
-              value={productSel?.vendor}
-              options={entities.filter((item) => item.role === 2)}
-              onChange={(val: number) => setProductSel({ ...productSel, vendor: val })}
-            />
             <Row template={[1, 1]}>
               <Button text="Salvar" isBlock onClick={productId ? () => updateData() : () => createData()} />
               <Button text="Cancelar" isBlock onClick={() => setProductId(undefined)} />
@@ -172,14 +163,14 @@ export const ProductsScreen = () => {
           </Form>
         </Block>
         <Block title="Productos Disponibles" className={css.two}>
-          <Table headers={["Nombre", "Serial", "Marca", "Precio", "Proveedor", "Estado", ""]}>
+          <Table headers={["Serial", "Nombre", "Marca", "Precio", "Estado", ""]}>
             {products
               .filter((item) => item.state === 1)
               .map((item: Product) => (
                 <TableRow key={item.id} isSelected={productId === item.id}>
                   {[
-                    { style: "", value: item.name },
                     { style: "number", value: item.serial },
+                    { style: "", value: item.name },
                     { style: "", value: item.brand },
                     {
                       style: "money",
@@ -187,7 +178,6 @@ export const ProductsScreen = () => {
                         meta.coins.find((co: Coin) => co.id === item.coin).symbol
                       } ${item.price.toFixed(2)}`,
                     },
-                    { style: "", value: entities.find((en: Entity) => en.id === item.vendor).name },
                     {
                       style: "state",
                       value: meta.states.find((st: State) => st.id === item.state).name,
@@ -208,14 +198,14 @@ export const ProductsScreen = () => {
           </Table>
         </Block>
         <Block title="Productos Agotados" className={css.three}>
-          <Table headers={["Nombre", "Serial", "Marca", "Precio", "Proveedor", "Estado", ""]}>
+          <Table headers={["Serial", "Nombre", "Marca", "Precio", "Estado", ""]}>
             {products
               .filter((item) => item.state === 2)
               .map((item: Product) => (
                 <TableRow key={item.id} isSelected={productId === item.id}>
                   {[
-                    { style: "", value: item.name },
                     { style: "number", value: item.serial },
+                    { style: "", value: item.name },
                     { style: "", value: item.brand },
                     {
                       style: "money",
@@ -223,7 +213,6 @@ export const ProductsScreen = () => {
                         meta.coins.find((co: Coin) => co.id === item.coin).symbol
                       } ${item.price.toFixed(2)}`,
                     },
-                    { style: "", value: entities.find((en: Entity) => en.id === item.vendor).name },
                     {
                       style: "state",
                       value: meta.states.find((st: State) => st.id === item.state).name,

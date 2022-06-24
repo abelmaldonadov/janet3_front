@@ -16,9 +16,13 @@ export const ProductCard = ({ product, meta, onClick }: Props) => {
         <div className={css.header}>
           <BiPackage size={100} color="rgba(0,0,0,0.1)" />
         </div>
-        <div className={css.body}>{product.name}</div>
-        <div className={css.footer}>
-          {meta.coins.find((item: Coin) => item.id === product.coin).symbol} {product.price}
+        <div className={css.body}>
+          <div className={css.name}>{product.name}</div>
+          <div className={css.brand}>{product.brand}</div>
+          <div className={css.serial}>Serie: {product.serial}</div>
+          <div className={css.price}>
+            {meta.coins.find((item: Coin) => item.id === product.coin).symbol} {product.price.toFixed(2)}
+          </div>
         </div>
       </div>
     </div>

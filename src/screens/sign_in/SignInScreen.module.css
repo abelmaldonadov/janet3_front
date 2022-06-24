@@ -1,0 +1,40 @@
+.container {
+    background: rgb(232, 232, 232);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.form {
+    background: white;
+    width: 400px;
+    height: 300px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 10px rgba(203, 152, 44, 0.2);
+}
+.header {
+    width: 100%;
+    height: 30%;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.body {
+    width: 100%;
+    height: 40%;
+    padding: 30px;
+}
+.footer {
+    width: 100%;
+    height: 30%;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.title {
+    color: rgba(0, 0, 0, 0.25);
+    margin-left: 5px;
+}
