@@ -9,3 +9,13 @@ export interface Product {
   coin: number
   state: number
 }
+
+export const PRODUCT_MODEL: Product = {
+  name: "",
+  serial: "",
+  brand: "",
+  description: "",
+  price: 0,
+  coin: 1,
+  state: 1,
+}

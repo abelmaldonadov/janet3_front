@@ -6,8 +6,7 @@ import { Table } from "../../components/table/Table"
 import { TableRow } from "../../components/table/TableRow"
 import { useContext, useEffect, useState } from "react"
 import axios from "axios"
-import { User } from "../../models/User"
-import { BiEdit, BiTrash } from "react-icons/bi"
+import { User, USER_MODEL } from "../../models/User"
 import { Level, State } from "../../models/Meta"
 import { Loader } from "../../components/loader/Loader"
 import { Form } from "../../components/form/Form"
@@ -15,23 +14,19 @@ import { Row } from "../../components/grid/Row"
 import { Input } from "../../components/form/Input"
 import { Button } from "../../components/form/Button"
 import { AppContext } from "../../contexts/AppContext"
+import { Entity } from "../../models/Entity"
+import { clone } from "../../utils/clone"
+import { handleErrors } from "../../utils/handleErrors"
 
 export const SettingsScreen = () => {
   const { REACT_APP_API_ROUTE: API_ROUTE } = process.env
-  const { headers } = useContext(AppContext)
-  const [isLoading, setLoading] = useState(true)
+  const { headers, signOut } = useContext(AppContext)
+  const [isLoading, setLoading] = useState<boolean>(true)
   const [users, setUsers] = useState<User[]>([])
-  const [entities, setEntities] = useState<any[]>([])
+  const [entities, setEntities] = useState<any[]>([] as Entity[])
   const [meta, setMeta] = useState<any>()
-  const [userSel, setUserSel] = useState<any>()
+  const [userSel, setUserSel] = useState<User>({} as User)
   const [userId, setUserId] = useState<number>()
-  const userModel: User = {
-    username: "",
-    password: "",
-    entity: 3,
-    level: 1,
-    state: 1,
-  }
 
   useEffect(() => {
     return () => {
@@ -40,7 +35,7 @@ export const SettingsScreen = () => {
   }, [])
 
   useEffect(() => {
-    setUserSel(JSON.parse(JSON.stringify(userModel)))
+    setUserSel(clone(USER_MODEL))
     if (userId) {
       getData()
     }
@@ -48,13 +43,13 @@ export const SettingsScreen = () => {
 
   const getAllData = async () => {
     try {
-      const users = await axios.get(`${API_ROUTE}/api/users`, headers)
-      const entities = await axios.get(`${API_ROUTE}/api/entities`, headers)
+      const users = await axios.get(`${API_ROUTE}/api/users`, { headers })
       setUsers(users.data.data)
+      const entities = await axios.get(`${API_ROUTE}/api/entities`, { headers })
       setEntities(entities.data.data.reverse())
       setMeta(users.data.meta)
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     } finally {
       setLoading(false)
     }
@@ -62,40 +57,40 @@ export const SettingsScreen = () => {
 
   const getData = async () => {
     try {
-      const users = await axios.get(`${API_ROUTE}/api/users/${userId}`, headers)
+      const users = await axios.get(`${API_ROUTE}/api/users/${userId}`, { headers })
       setUserSel(users.data.data[0])
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     }
   }
 
   const updateData = async () => {
     try {
-      await axios.put(`${API_ROUTE}/api/users/${userId}`, userSel, headers)
+      await axios.put(`${API_ROUTE}/api/users/${userId}`, userSel, { headers })
       await getAllData()
       setUserId(undefined)
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     }
   }
 
   const createData = async () => {
     try {
-      await axios.post(`${API_ROUTE}/api/users`, userSel, headers)
+      await axios.post(`${API_ROUTE}/api/users`, userSel, { headers })
       await getAllData()
-      setUserSel(JSON.parse(JSON.stringify(userModel)))
+      setUserSel(clone(USER_MODEL))
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     }
   }
 
   const deleteData = async (id: any) => {
     if (!window.confirm("¿Está seguro de eliminar el item?")) return
     try {
-      await axios.delete(`${API_ROUTE}/api/users/${id}`, headers)
+      await axios.delete(`${API_ROUTE}/api/users/${id}`, { headers })
       await getAllData()
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     }
   }
 
@@ -107,7 +102,12 @@ export const SettingsScreen = () => {
         <Block title="Agentes" className={css.one}>
           <Table headers={["Id", "Username", "Entidad", "Nivel de Acceso", "Estado", ""]}>
             {users.map((item) => (
-              <TableRow key={item.id} isSelected={userId === item.id}>
+              <TableRow
+                key={item.id}
+                isSelected={userId === item.id}
+                selectRow={() => setUserId(item.id)}
+                deleteRow={() => deleteData(item.id)}
+              >
                 {[
                   { style: "number", value: item.id },
                   { style: "", value: item.username },
@@ -125,15 +125,6 @@ export const SettingsScreen = () => {
                     style: "state",
                     value: meta.states.find((st: State) => st.id === item.state).name,
                     fkId: item.state,
-                  },
-                  {
-                    style: "icon",
-                    value: (
-                      <>
-                        <BiEdit size="1.1rem" onClick={() => setUserId(item.id)} />
-                        <BiTrash size="1.1rem" onClick={() => deleteData(item.id)} />
-                      </>
-                    ),
                   },
                 ]}
               </TableRow>
@@ -178,8 +169,8 @@ export const SettingsScreen = () => {
               />
             </Row>
             <Row template={[1, 1]}>
-              <Button text="Salvar" isBlock onClick={userId ? () => updateData() : () => createData()} />
               <Button text="Cancelar" isBlock onClick={() => setUserId(undefined)} />
+              <Button text="Salvar" isBlock onClick={userId ? () => updateData() : () => createData()} />
             </Row>
           </Form>
         </Block>

@@ -35,16 +35,16 @@ interface Route {
   name?: string
   route?: string
   parentId?: number
-  level?: number
-  state?: number
+  level: number
+  state: number
 }
 interface User {
   id?: number
   username?: string
   password?: string
-  entity?: number
-  level?: number
-  state?: number
+  entity: number
+  level: number
+  state: number
 }
 export interface Meta {
   // Aux

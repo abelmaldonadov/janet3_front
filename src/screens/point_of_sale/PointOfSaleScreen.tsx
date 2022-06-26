@@ -10,50 +10,35 @@ import { ProductCard } from "../../components/product_card/ProductCard"
 import { Row } from "../../components/grid/Row"
 import { Input } from "../../components/form/Input"
 import { Button } from "../../components/form/Button"
-import { Transaction, TransactionDetail } from "../../models/Transaction"
+import { Transaction, TRANSACTION_MODEL, TransactionDetail } from "../../models/Transaction"
 import { BiTrash } from "react-icons/bi"
 import { Form } from "../../components/form/Form"
-import { Entity } from "../../models/Entity"
+import { Entity, ENTITY_MODEL } from "../../models/Entity"
 import { sortObjects } from "../../utils/sortObjects"
 import { AppContext } from "../../contexts/AppContext"
+import { clone } from "../../utils/clone"
+import { handleErrors } from "../../utils/handleErrors"
 
 export const PointOfSaleScreen = () => {
-  const transactionModel: Transaction = {
-    date: "",
-    total: 0,
-    coin: 1,
-    transactionType: 1,
-    tracking: 2,
-    entity: 1,
-    state: 1,
-  }
-  const entityModel: Entity = {
-    name: "",
-    ruc: "",
-    email: "",
-    phone: "",
-    address: "",
-    role: 1,
-    state: 1,
-  }
   const { REACT_APP_API_ROUTE: API_ROUTE } = process.env
-  const { headers } = useContext(AppContext)
-  const [isLoading, setLoading] = useState(true)
-  const [products, setProducts] = useState<any[]>([])
-  const [entities, setEntities] = useState<any[]>([])
+  const { headers, signOut } = useContext(AppContext)
+  const [isLoading, setLoading] = useState<boolean>(true)
+  const [products, setProducts] = useState<any[]>([] as Product[])
+  const [entities, setEntities] = useState<Entity[]>([] as Entity[])
   const [meta, setMeta] = useState<any>()
   const [transactionDetail, setTransactionDetail] = useState<TransactionDetail[]>([])
-  const [newEntity, setNewEntity] = useState<any>(JSON.parse(JSON.stringify(entityModel)))
-  const [transaction, setTransaction] = useState<any>(JSON.parse(JSON.stringify(transactionModel)))
+  const [newEntity, setNewEntity] = useState<Entity>({} as Entity)
+  const [transaction, setTransaction] = useState<Transaction>({} as Transaction)
 
   useEffect(() => {
+    setNewEntity(clone(ENTITY_MODEL))
     return () => {
       getAllData()
     }
   }, [])
 
   useEffect(() => {
-    const trans = JSON.parse(JSON.stringify(transaction))
+    const trans = clone(TRANSACTION_MODEL)
     if (transactionDetail.length > 0) {
       trans.total = transactionDetail.reduce((acc, cur) => acc + cur.subtotal, 0).toFixed(2)
     } else {
@@ -64,20 +49,20 @@ export const PointOfSaleScreen = () => {
 
   const getAllData = async () => {
     try {
-      const products = await axios.get(`${API_ROUTE}/api/products`, headers)
-      const entities = await axios.get(`${API_ROUTE}/api/entities`, headers)
+      const products = await axios.get(`${API_ROUTE}/api/products`, { headers })
       setProducts(sortObjects(products.data.data, "name", "<"))
+      const entities = await axios.get(`${API_ROUTE}/api/entities`, { headers })
       setEntities(entities.data.data.reverse())
       setMeta(products.data.meta)
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     } finally {
       setLoading(false)
     }
   }
 
   const addToCart = (product: Product, quantity: number) => {
-    const detail = JSON.parse(JSON.stringify(transactionDetail))
+    const detail = clone(transactionDetail)
     const productExist = detail.find((item: TransactionDetail) => item.product === product.id)
     if (productExist) {
       productExist.quantity++
@@ -96,7 +81,7 @@ export const PointOfSaleScreen = () => {
   }
 
   const removeFromCart = (i: number) => {
-    const details = JSON.parse(JSON.stringify(transactionDetail))
+    const details = clone(transactionDetail)
     const newDetails = details.filter((item: TransactionDetail, index: number) => index !== i)
     setTransactionDetail(newDetails)
   }
@@ -106,33 +91,33 @@ export const PointOfSaleScreen = () => {
       await axios.post(
         `${API_ROUTE}/api/transactions`,
         { head: transaction, body: transactionDetail },
-        headers
+        { headers }
       )
       await getAllData()
-      setTransaction(JSON.parse(JSON.stringify(transactionModel)))
+      setTransaction(clone(TRANSACTION_MODEL))
       setTransactionDetail([])
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     }
   }
 
   const cancelSale = () => {
-    setTransaction(JSON.parse(JSON.stringify(transactionModel)))
+    setTransaction(clone(TRANSACTION_MODEL))
     setTransactionDetail([])
   }
 
   const createNewEntity = async () => {
     try {
-      await axios.post(`${API_ROUTE}/api/entities`, newEntity, headers)
+      await axios.post(`${API_ROUTE}/api/entities`, newEntity, { headers })
       await getAllData()
-      setNewEntity(JSON.parse(JSON.stringify(entityModel)))
+      setNewEntity(clone(ENTITY_MODEL))
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     }
   }
 
   const cancelNewEntity = () => {
-    const entity = JSON.parse(JSON.stringify(newEntity))
+    const entity = JSON.parse(JSON.stringify(ENTITY_MODEL))
     setNewEntity(entity)
   }
 
@@ -208,13 +193,13 @@ export const PointOfSaleScreen = () => {
             onChange={(val: number) => setTransaction({ ...transaction, entity: val })}
           />
           <Row template={[1, 1]}>
+            <Button text="Cancelar" isBlock onClick={() => cancelSale()} />
             <Button
               text="Salvar"
               isBlock
               isDisabled={transactionDetail === undefined || transactionDetail.length === 0}
               onClick={() => sell()}
             />
-            <Button text="Cancelar" isBlock onClick={() => cancelSale()} />
           </Row>
         </Block>
         <Block title="Nuevo Cliente" className={css.three}>
@@ -264,8 +249,8 @@ export const PointOfSaleScreen = () => {
               />
             </Row>
             <Row template={[1, 1]}>
-              <Button text="Salvar" isBlock onClick={() => createNewEntity()} />
               <Button text="Cancelar" isBlock onClick={() => cancelNewEntity()} />
+              <Button text="Salvar" isBlock onClick={() => createNewEntity()} />
             </Row>
           </Form>
         </Block>

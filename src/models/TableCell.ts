@@ -1,5 +1,5 @@
 export interface TableCell {
   style: string
-  value: any
+  value?: any
   fkId?: number
 }

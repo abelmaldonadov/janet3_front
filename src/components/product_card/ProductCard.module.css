@@ -24,10 +24,16 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
+    padding: 15px;
+}
+.productPreview {
+    width: 100%;
 }
 .body {
     width: 100%;
     height: 30%;
+    padding-top: 5px;
 }
 .name {
     width: 100%;

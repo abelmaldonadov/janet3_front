@@ -1,12 +1,15 @@
 import css from "./TableRow.module.css"
 import { TableCell } from "../../models/TableCell"
+import { BiEdit, BiTrash } from "react-icons/bi"
 
 interface Props {
   isSelected?: boolean
+  selectRow?: () => void
+  deleteRow?: () => void
   children: TableCell[]
 }
 
-export const TableRow = ({ isSelected, children }: Props): JSX.Element => {
+export const TableRow = ({ isSelected, selectRow, deleteRow, children }: Props): JSX.Element => {
   return (
     <tr className={`${css.row} ${isSelected && css.selected}`}>
       {children.map((item, index) => (
@@ -25,6 +28,12 @@ export const TableRow = ({ isSelected, children }: Props): JSX.Element => {
           {item.style === "state" && <StateCell fk={item.fkId}>{item.value}</StateCell>}
         </td>
       ))}
+      <td className={css.col}>
+        <IconCell>
+          <BiEdit size="1.1rem" onClick={selectRow} />
+          <BiTrash size="1.1rem" onClick={deleteRow} />
+        </IconCell>
+      </td>
     </tr>
   )
 }

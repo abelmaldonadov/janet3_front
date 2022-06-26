@@ -3,11 +3,11 @@ import css from "./EntitiesScreen.module.css"
 import { Block } from "../../components/grid/Block"
 import { Grid } from "../../components/grid/Grid"
 import { useContext, useEffect, useState } from "react"
-import { Entity } from "../../models/Entity"
+import { Entity, ENTITY_MODEL } from "../../models/Entity"
 import axios from "axios"
 import { Loader } from "../../components/loader/Loader"
 import { TableRow } from "../../components/table/TableRow"
-import { Role, State } from "../../models/Meta"
+import { Meta, Role, State } from "../../models/Meta"
 import { Table } from "../../components/table/Table"
 import { Form } from "../../components/form/Form"
 import { BiEdit, BiTrash } from "react-icons/bi"
@@ -15,24 +15,17 @@ import { Input } from "../../components/form/Input"
 import { Button } from "../../components/form/Button"
 import { Row } from "../../components/grid/Row"
 import { AppContext } from "../../contexts/AppContext"
+import { clone } from "../../utils/clone"
+import { handleErrors } from "../../utils/handleErrors"
 
 export const EntitiesScreen = () => {
   const { REACT_APP_API_ROUTE: API_ROUTE } = process.env
-  const { headers } = useContext(AppContext)
-  const [isLoading, setLoading] = useState(true)
+  const { headers, signOut } = useContext(AppContext)
+  const [isLoading, setLoading] = useState<boolean>(true)
   const [entities, setEntities] = useState<Entity[]>([])
-  const [meta, setMeta] = useState<any>()
-  const [entitySel, setEntitySel] = useState<any>()
+  const [meta, setMeta] = useState<any>({})
+  const [entitySel, setEntitySel] = useState<Entity>({} as Entity)
   const [entityId, setEntityId] = useState<number>()
-  const entityModel = {
-    name: "",
-    ruc: "",
-    email: "",
-    phone: "",
-    address: "",
-    role: 1,
-    state: 1,
-  }
 
   useEffect(() => {
     return () => {
@@ -41,7 +34,7 @@ export const EntitiesScreen = () => {
   }, [])
 
   useEffect(() => {
-    setEntitySel(JSON.parse(JSON.stringify(entityModel)))
+    setEntitySel(clone(ENTITY_MODEL))
     if (entityId) {
       getData()
     }
@@ -49,11 +42,11 @@ export const EntitiesScreen = () => {
 
   const getAllData = async () => {
     try {
-      const entities = await axios.get(`${API_ROUTE}/api/entities`, headers)
+      const entities = await axios.get(`${API_ROUTE}/api/entities`, { headers })
       setEntities(entities.data.data.reverse())
       setMeta(entities.data.meta)
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     } finally {
       setLoading(false)
     }
@@ -61,40 +54,40 @@ export const EntitiesScreen = () => {
 
   const getData = async () => {
     try {
-      const entities = await axios.get(`${API_ROUTE}/api/entities/${entityId}`, headers)
+      const entities = await axios.get(`${API_ROUTE}/api/entities/${entityId}`, { headers })
       setEntitySel(entities.data.data[0])
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     }
   }
 
   const updateData = async () => {
     try {
-      await axios.put(`${API_ROUTE}/api/entities/${entityId}`, entitySel, headers)
+      await axios.put(`${API_ROUTE}/api/entities/${entityId}`, entitySel, { headers })
       await getAllData()
       setEntityId(undefined)
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     }
   }
 
   const createData = async () => {
     try {
-      await axios.post(`${API_ROUTE}/api/entities`, entitySel, headers)
+      await axios.post(`${API_ROUTE}/api/entities`, entitySel, { headers })
       await getAllData()
-      setEntitySel(JSON.parse(JSON.stringify(entityModel)))
+      setEntitySel(clone(ENTITY_MODEL))
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     }
   }
 
   const deleteData = async (id: any) => {
     if (!window.confirm("¿Está seguro de eliminar el item?")) return
     try {
-      await axios.delete(`${API_ROUTE}/api/entities/${id}`, headers)
+      await axios.delete(`${API_ROUTE}/api/entities/${id}`, { headers })
       await getAllData()
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     }
   }
 
@@ -149,8 +142,8 @@ export const EntitiesScreen = () => {
               />
             </Row>
             <Row template={[1, 1]}>
-              <Button text="Salvar" isBlock onClick={entityId ? () => updateData() : () => createData()} />
               <Button text="Cancelar" isBlock onClick={() => setEntityId(undefined)} />
+              <Button text="Salvar" isBlock onClick={entityId ? () => updateData() : () => createData()} />
             </Row>
           </Form>
         </Block>
@@ -159,7 +152,12 @@ export const EntitiesScreen = () => {
             {entities
               .filter((item) => item.role === 1)
               .map((item: Entity) => (
-                <TableRow key={item.id} isSelected={entityId === item.id}>
+                <TableRow
+                  key={item.id}
+                  isSelected={entityId === item.id}
+                  selectRow={() => setEntityId(item.id)}
+                  deleteRow={() => deleteData(item.id)}
+                >
                   {[
                     { style: "number", value: item.ruc },
                     { style: "", value: item.name },
@@ -170,15 +168,6 @@ export const EntitiesScreen = () => {
                       style: "state",
                       value: meta.states.find((st: State) => st.id === item.state).name,
                       fkId: item.state,
-                    },
-                    {
-                      style: "icon",
-                      value: (
-                        <>
-                          <BiEdit size="1.1rem" onClick={() => setEntityId(item.id)} />
-                          <BiTrash size="1.1rem" onClick={() => deleteData(item.id)} />
-                        </>
-                      ),
                     },
                   ]}
                 </TableRow>
@@ -190,7 +179,12 @@ export const EntitiesScreen = () => {
             {entities
               .filter((item) => item.role === 2)
               .map((item: Entity) => (
-                <TableRow key={item.id} isSelected={entityId === item.id}>
+                <TableRow
+                  key={item.id}
+                  isSelected={entityId === item.id}
+                  selectRow={() => setEntityId(item.id)}
+                  deleteRow={() => deleteData(item.id)}
+                >
                   {[
                     { style: "number", value: item.ruc },
                     { style: "", value: item.name },
@@ -201,15 +195,6 @@ export const EntitiesScreen = () => {
                       style: "state",
                       value: meta.states.find((st: State) => st.id === item.state).name,
                       fkId: item.state,
-                    },
-                    {
-                      style: "icon",
-                      value: (
-                        <>
-                          <BiEdit size="1.1rem" onClick={() => setEntityId(item.id)} />
-                          <BiTrash size="1.1rem" onClick={() => deleteData(item.id)} />
-                        </>
-                      ),
                     },
                   ]}
                 </TableRow>
@@ -221,7 +206,12 @@ export const EntitiesScreen = () => {
             {entities
               .filter((item) => item.role === 3)
               .map((item: Entity) => (
-                <TableRow key={item.id} isSelected={entityId === item.id}>
+                <TableRow
+                  key={item.id}
+                  isSelected={entityId === item.id}
+                  selectRow={() => setEntityId(item.id)}
+                  deleteRow={() => deleteData(item.id)}
+                >
                   {[
                     { style: "number", value: item.ruc },
                     { style: "", value: item.name },
@@ -232,15 +222,6 @@ export const EntitiesScreen = () => {
                       style: "state",
                       value: meta.states.find((st: State) => st.id === item.state).name,
                       fkId: item.state,
-                    },
-                    {
-                      style: "icon",
-                      value: (
-                        <>
-                          <BiEdit size="1.1rem" onClick={() => setEntityId(item.id)} />
-                          <BiTrash size="1.1rem" onClick={() => deleteData(item.id)} />
-                        </>
-                      ),
                     },
                   ]}
                 </TableRow>

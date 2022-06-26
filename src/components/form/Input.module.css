@@ -18,3 +18,24 @@
 .input[readOnly] {
     background: #faf5e9;
 }
+.fileInput {
+    height: 100px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: white;
+    border-radius: 5px;
+    outline-color: #f6d466;
+    padding: 7px;
+    cursor: pointer;
+}
+.fileInputDotted {
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+    border: 4px dashed #ffeec7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.fileInputPreview {
+    height: 100%;
+}

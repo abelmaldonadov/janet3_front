@@ -1,3 +1,5 @@
+import { Entity } from "./Entity"
+
 export interface TransactionDetail {
   id?: number
   price: number
@@ -17,4 +19,13 @@ export interface Transaction {
   tracking: number
   entity: number
   state: number
+}
+export const TRANSACTION_MODEL: Transaction = {
+  date: "",
+  total: 0,
+  coin: 1,
+  transactionType: 1,
+  tracking: 2,
+  entity: 1,
+  state: 1,
 }

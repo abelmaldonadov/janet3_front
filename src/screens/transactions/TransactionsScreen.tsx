@@ -6,37 +6,33 @@ import { useContext, useEffect, useState } from "react"
 import { Entity } from "../../models/Entity"
 import axios from "axios"
 import { Loader } from "../../components/loader/Loader"
-import { Transaction, TransactionDetail } from "../../models/Transaction"
+import { Transaction, TRANSACTION_MODEL, TransactionDetail } from "../../models/Transaction"
 import { TableRow } from "../../components/table/TableRow"
-import { Coin, Role, State, Tracking, TransactionType } from "../../models/Meta"
+import { Coin, State, TransactionType } from "../../models/Meta"
 import { Table } from "../../components/table/Table"
-import { BiEdit, BiShoppingBag, BiTrash } from "react-icons/bi"
+import { BiDownload, BiPrinter, BiShoppingBag } from "react-icons/bi"
 import { Input } from "../../components/form/Input"
 import { Form } from "../../components/form/Form"
 import { Button } from "../../components/form/Button"
 import { Row } from "../../components/grid/Row"
 import { AppContext } from "../../contexts/AppContext"
+import { clone } from "../../utils/clone"
+import { Product } from "../../models/Product"
+import { handleErrors } from "../../utils/handleErrors"
+import { Blob } from "buffer"
 
 export const TransactionsScreen = () => {
-  const transactionModel = {
-    id: "",
-    date: "",
-    total: 0,
-    coin: 1,
-    transactionType: 1,
-    tracking: 1,
-    entity: 1,
-    state: 1,
-  }
   const { REACT_APP_API_ROUTE: API_ROUTE } = process.env
-  const { headers } = useContext(AppContext)
-  const [isLoading, setLoading] = useState(true)
+  const { headers, signOut } = useContext(AppContext)
+  const [isLoading, setLoading] = useState<boolean>(true)
   const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [entities, setEntities] = useState<any[]>([])
-  const [products, setProducts] = useState<any[]>([])
+  const [entities, setEntities] = useState<any[]>([] as Entity[])
+  const [products, setProducts] = useState<any[]>([] as Product[])
   const [meta, setMeta] = useState<any>()
-  const [transactionSel, setTransactionSel] = useState<any>(JSON.parse(JSON.stringify(transactionModel)))
-  const [transactionDetailSel, setTransactionDetailSel] = useState<any>()
+  const [transactionSel, setTransactionSel] = useState<Transaction>({} as Transaction)
+  const [transactionDetailSel, setTransactionDetailSel] = useState<TransactionDetail[]>(
+    [] as TransactionDetail[]
+  )
   const [transactionId, setTransactionId] = useState<number>()
 
   useEffect(() => {
@@ -46,7 +42,7 @@ export const TransactionsScreen = () => {
   }, [])
 
   useEffect(() => {
-    setTransactionSel(JSON.parse(JSON.stringify(transactionModel)))
+    setTransactionSel(clone(TRANSACTION_MODEL))
     setTransactionDetailSel([])
     if (transactionId) {
       getData()
@@ -55,15 +51,15 @@ export const TransactionsScreen = () => {
 
   const getAllData = async () => {
     try {
-      const transactions = await axios.get(`${API_ROUTE}/api/transactions`, headers)
-      const entities = await axios.get(`${API_ROUTE}/api/entities`, headers)
-      const products = await axios.get(`${API_ROUTE}/api/products`, headers)
+      const transactions = await axios.get(`${API_ROUTE}/api/transactions`, { headers })
+      const entities = await axios.get(`${API_ROUTE}/api/entities`, { headers })
+      const products = await axios.get(`${API_ROUTE}/api/products`, { headers })
       setTransactions(transactions.data.data.reverse())
       setEntities(entities.data.data.reverse())
       setProducts(products.data.data.reverse())
       setMeta(transactions.data.meta)
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     } finally {
       setLoading(false)
     }
@@ -71,31 +67,31 @@ export const TransactionsScreen = () => {
 
   const getData = async () => {
     try {
-      const transactions = await axios.get(`${API_ROUTE}/api/transactions/${transactionId}`, headers)
+      const transactions = await axios.get(`${API_ROUTE}/api/transactions/${transactionId}`, { headers })
       setTransactionSel(transactions.data.data.head[0])
       setTransactionDetailSel(transactions.data.data.body)
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     }
   }
 
   const updateData = async () => {
     try {
-      await axios.put(`${API_ROUTE}/api/transactions/${transactionId}`, transactionSel, headers)
+      await axios.put(`${API_ROUTE}/api/transactions/${transactionId}`, transactionSel, { headers })
       await getAllData()
       setTransactionId(undefined)
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     }
   }
 
   const deleteData = async (id: any) => {
     if (!window.confirm("¿Está seguro de eliminar el item?")) return
     try {
-      await axios.delete(`${API_ROUTE}/api/transactions/${id}`, headers)
+      await axios.delete(`${API_ROUTE}/api/transactions/${id}`, { headers })
       await getAllData()
     } catch (error) {
-      alert(error)
+      handleErrors(error, signOut)
     }
   }
 
@@ -185,19 +181,19 @@ export const TransactionsScreen = () => {
                 readonly
                 options={meta.coins}
                 value={transactionSel?.coin}
-                onChange={(val: string) => setTransactionSel({ ...transactionSel, coin: val })}
+                onChange={(val: number) => setTransactionSel({ ...transactionSel, coin: val })}
               />
               <Input
                 label="Total"
-                type="text"
+                type="number"
                 readonly
                 value={transactionSel?.total}
-                onChange={(val: string) => setTransactionSel({ ...transactionSel, total: val })}
+                onChange={(val: number) => setTransactionSel({ ...transactionSel, total: val })}
               />
             </Row>
             <Row template={[1, 1]}>
-              <Button text="Salvar" isBlock isDisabled={!transactionId} onClick={() => updateData()} />
               <Button text="Cancelar" isBlock onClick={() => setTransactionId(undefined)} />
+              <Button text="Salvar" isBlock isDisabled={!transactionId} onClick={() => updateData()} />
             </Row>
           </Form>
         </Block>
@@ -206,7 +202,12 @@ export const TransactionsScreen = () => {
             {transactions
               .filter((item) => item.tracking === 2)
               .map((item: Transaction) => (
-                <TableRow key={item.id} isSelected={transactionId === item.id}>
+                <TableRow
+                  key={item.id}
+                  isSelected={transactionId === item.id}
+                  selectRow={() => setTransactionId(item.id)}
+                  deleteRow={() => deleteData(item.id)}
+                >
                   {[
                     { style: "number", value: item.id },
                     { style: "date", value: new Date(item.date).toLocaleString() },
@@ -228,15 +229,6 @@ export const TransactionsScreen = () => {
                       style: "state",
                       value: meta.states.find((st: State) => st.id === item.state).name,
                       fkId: item.state,
-                    },
-                    {
-                      style: "icon",
-                      value: (
-                        <>
-                          <BiEdit size="1.1rem" onClick={() => setTransactionId(item.id)} />
-                          <BiTrash size="1.1rem" onClick={() => deleteData(item.id)} />
-                        </>
-                      ),
                     },
                   ]}
                 </TableRow>
@@ -248,7 +240,12 @@ export const TransactionsScreen = () => {
             {transactions
               .filter((item) => item.tracking === 1)
               .map((item: Transaction) => (
-                <TableRow key={item.id} isSelected={transactionId === item.id}>
+                <TableRow
+                  key={item.id}
+                  isSelected={transactionId === item.id}
+                  selectRow={() => setTransactionId(item.id)}
+                  deleteRow={() => deleteData(item.id)}
+                >
                   {[
                     { style: "number", value: item.id },
                     { style: "date", value: new Date(item.date).toLocaleString() },
@@ -270,15 +267,6 @@ export const TransactionsScreen = () => {
                       style: "state",
                       value: meta.states.find((st: State) => st.id === item.state).name,
                       fkId: item.state,
-                    },
-                    {
-                      style: "icon",
-                      value: (
-                        <>
-                          <BiEdit size="1.1rem" onClick={() => setTransactionId(item.id)} />
-                          <BiTrash size="1.1rem" onClick={() => deleteData(item.id)} />
-                        </>
-                      ),
                     },
                   ]}
                 </TableRow>

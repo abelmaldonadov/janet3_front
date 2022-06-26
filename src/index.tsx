@@ -9,10 +9,10 @@ import { AppContextComponent } from "./contexts/AppContext"
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
 root.render(
   <React.StrictMode>
-    <AppContextComponent>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AppContextComponent>
         <App />
-      </BrowserRouter>
-    </AppContextComponent>
+      </AppContextComponent>
+    </BrowserRouter>
   </React.StrictMode>
 )

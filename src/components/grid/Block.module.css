@@ -7,26 +7,38 @@
 }
 .fixed {
     position: sticky;
-    top: 100px;
+    top: 85px;
 }
 .header {
     /*background: rgba(0, 0, 0, 0.03);*/
     height: 40px;
-    padding: 0 5px;
+    padding: 0 3px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-radius: 5px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 .left {}
-.right {}
+.right {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
 .title {
     font-size: 1.3rem;
     font-weight: 500;
+}
+.button {
+    background: #f6d466;
+    padding: 7px 7px 5px 7px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 5px;
 }
 .body {
     height: calc(100% - 50px);
     border-radius: 5px;
     overflow-y: auto;
+    /*background: #f1bd00;*/
 }
