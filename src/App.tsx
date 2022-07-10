@@ -12,6 +12,7 @@ import { Navbar } from "./components/navbar/Navbar"
 import { SettingsScreen } from "./screens/settings/SettingsScreen"
 import { SignInScreen } from "./screens/sign_in/SignInScreen"
 import { ExitScreen } from "./screens/exit/ExitScreen"
+import { PlannerScreen } from "./screens/planner/PlannerScreen"
 const { REACT_APP_API_ROUTE: API_ROUTE } = process.env
 
 function App() {
@@ -62,6 +63,7 @@ function App() {
                 <Route path="/entities" element={<EntitiesScreen />} />
                 <Route path="/products" element={<ProductsScreen />} />
                 <Route path="/transactions" element={<TransactionsScreen />} />
+                <Route path="/planner" element={<PlannerScreen />} />
                 <Route path="/" element={<PointOfSaleScreen />} />
                 <Route path="*" element={<_Error404 />} />
               </Routes>

@@ -48,6 +48,11 @@ export const Navbar = () => {
       name: "Transacciones",
       route: "/transactions",
     },
+    {
+      icon: <BiBarChartAlt2 size="1.5rem" color="rgba(255, 255, 255, 0.75)" />,
+      name: "Planificador",
+      route: "/planner",
+    },
   ]
   const location = useLocation()
 

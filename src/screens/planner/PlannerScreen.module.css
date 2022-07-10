@@ -1,0 +1,28 @@
+.one {
+    grid-column: 1 / 13;
+    grid-row: 1 / 7;
+}
+.two {
+    grid-column: 1 / 13;
+    grid-row: 7 / 13;
+}
+.three {
+    grid-column: 9 / 13;
+    grid-row: 7 / 13;
+}
+
+.contentPlanner {
+    background-color: #eeeeee;
+    width: 100%;
+    height: 80%;
+    margin: 20px 0px;
+    border-radius: 10px;
+    display: flex;
+}
+
+.colDay {
+    max-width: 100%;
+    min-width: 80px;
+    text-align: center;
+    border: 1px solid black;
+}
